@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Grammar Mind Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#151a16;--bg2:#1b211c;--sf:#222a24;--sf2:#2a3430;
+  --tx:#e4e2d8;--dm:#7d8a7f;--brd:#ffffff08;
+  --t1:#2fb8a0;--t1l:#7dddc8;
+  --t2:#dea02c;--t2l:#f0cc6a;
+  --t3:#5aad3e;--t3l:#8fd07a;
+  --t4:#cc7e4e;--t4l:#e8a87a;
+  --t5:#8db860;--t5l:#b5d48e;
+  --t6:#bfa058;--t6l:#dbc48a;
+}
+[data-theme="light"]{
+  --bg:#f4f3ef;--bg2:#ffffff;--sf:#e8e7e3;--sf2:#dcdbd6;
+  --tx:#1a1c19;--dm:#6b7168;--brd:#00000010;
+}
+html{font-size:15px;-webkit-tap-highlight-color:transparent}
+body{font-family:'IBM Plex Sans Thai','Outfit',sans-serif;background:var(--bg);color:var(--tx);min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;transition:background .3s,color .3s}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;gap:.4rem;padding:.55rem .7rem;background:var(--bg2);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:50;transition:background .3s}
+.tb-btn{width:32px;height:32px;border-radius:9px;border:none;background:var(--sf);color:var(--tx);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;flex-shrink:0;transition:background .2s}
+.tb-btn:hover{background:var(--sf2)}
+.tb-btn.hid{visibility:hidden}
+.cr{display:flex;align-items:center;gap:.25rem;font-size:.7rem;color:var(--dm);overflow:hidden;white-space:nowrap;flex:1}
+.cr span{cursor:pointer}.cr .sep{opacity:.3;cursor:default}.cr .cur{color:var(--tx);font-weight:600;cursor:default;overflow:hidden;text-overflow:ellipsis}
+.tb-right{display:flex;gap:4px;flex-shrink:0}
+
+/* Progress bar */
+.pbar{height:3px;background:var(--sf);position:relative}
+.pbar .fill{height:100%;transition:width .4s;border-radius:0 2px 2px 0}
+
+/* Map area */
+.mm-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:auto;padding:.6rem}
+.mm-c{position:relative;width:100%;max-width:720px;aspect-ratio:1/1}
+.mm-c.wide{aspect-ratio:5/3}
+.mm-c.horiz{aspect-ratio:5/3}
+.mm-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.mm-line{fill:none;stroke-width:2;stroke-linecap:round;opacity:0;animation:li .5s ease forwards}
+@keyframes li{to{opacity:.4}}
+.mm-n{position:absolute;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transform:translate(-50%,-50%) scale(0);animation:ni .4s cubic-bezier(.34,1.56,.64,1) forwards;transition:transform .15s;-webkit-user-select:none;user-select:none;line-height:1.25}
+.mm-n:active{transform:translate(-50%,-50%) scale(.92)!important}
+@keyframes ni{to{transform:translate(-50%,-50%) scale(1)}}
+.nc{width:100px;height:100px;border-radius:50%;font-weight:700;font-size:.72rem;color:#fff;z-index:5}
+.nc .sub{font-size:.5rem;font-weight:400;opacity:.7;margin-top:2px}
+.nb{min-width:80px;max-width:120px;padding:8px 12px;border-radius:40px;font-weight:600;font-size:.6rem;color:#fff}
+.nb .nth{font-size:.5rem;font-weight:400;opacity:.7;margin-top:1px}
+.nb:hover{z-index:10}
+.nl{min-width:72px;max-width:110px;padding:6px 10px;border-radius:28px;font-weight:600;font-size:.54rem;color:#fff}
+.nl .nth{font-size:.44rem;font-weight:400;opacity:.65;margin-top:1px}
+.nl .bkmk{position:absolute;top:-4px;right:-4px;font-size:.6rem}
+
+/* Bottom nav */
+.tnav{display:flex;gap:4px;padding:6px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--bg2);border-top:1px solid var(--brd);scrollbar-width:none;transition:background .3s}
+.tnav::-webkit-scrollbar{display:none}
+.ch{flex-shrink:0;padding:5px 11px;border-radius:16px;font-size:.62rem;font-weight:600;cursor:pointer;border:1.5px solid;background:transparent;transition:background .15s;white-space:nowrap}
+.ch:active{transform:scale(.93)}
+.ch.on{color:#fff}
+.ch-special{background:var(--sf)!important;border-color:var(--dm)!important;color:var(--tx)!important}
+
+/* Sheet */
+.obg{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.55);opacity:0;transition:opacity .25s;pointer-events:none}
+.obg.show{opacity:1;pointer-events:auto}
+.sht{position:fixed;bottom:0;left:0;right:0;z-index:101;background:var(--bg2);border-radius:16px 16px 0 0;max-height:88dvh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1),background .3s;padding:0 0 env(safe-area-inset-bottom)}
+.sht.show{transform:translateY(0)}
+.sht::-webkit-scrollbar{width:3px}.sht::-webkit-scrollbar-thumb{background:#ffffff18;border-radius:2px}
+.sh-bar{width:32px;height:4px;border-radius:2px;background:var(--dm);opacity:.3;margin:8px auto 4px}
+.sh-hd{padding:4px 16px 8px;border-bottom:1px solid var(--brd);display:flex;align-items:flex-start;justify-content:space-between}
+.sh-hd-left h3{font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700}
+.sh-hd .sth{font-size:.72rem;color:var(--dm);margin-top:1px}
+.sh-hd-btns{display:flex;gap:6px;padding-top:2px}
+.sh-hd-btns button{width:30px;height:30px;border-radius:8px;border:1px solid var(--brd);background:var(--sf);color:var(--tx);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.sh-bd{padding:12px 16px 20px}
+.s-sec{margin-bottom:12px}
+.s-label{font-size:.58rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.s-label .ico{font-style:normal;font-size:.75rem}
+.s-desc{font-size:.8rem;line-height:1.7;color:var(--tx)}
+.s-form{background:var(--sf);border-radius:9px;padding:9px 12px;font-family:'Outfit',monospace;font-size:.72rem;line-height:1.6;border-left:3px solid;white-space:pre-wrap;transition:background .3s}
+.s-ex{background:var(--sf);border-radius:9px;padding:9px 12px;font-size:.76rem;line-height:1.8;transition:background .3s}
+.s-ex .hi{font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.s-ex .trn{color:var(--dm);font-size:.7rem;font-style:italic}
+.s-tip{background:var(--sf);border-radius:9px;padding:9px 12px;font-size:.76rem;line-height:1.7;border-left:3px solid #5aad3e88;transition:background .3s}
+.s-mis{background:var(--sf);border-radius:9px;padding:9px 12px;font-size:.76rem;line-height:1.7;border-left:3px solid #cc7e4e88;transition:background .3s}
+.s-sig{display:flex;flex-wrap:wrap;gap:4px}
+.s-sig span{padding:2px 8px;border-radius:12px;font-size:.68rem;font-weight:500}
+.sh-nav{display:flex;gap:6px;margin-top:14px;padding-top:10px;border-top:1px solid var(--brd)}
+.sh-nav button{flex:1;padding:8px;border-radius:9px;border:1px solid;background:transparent;cursor:pointer;font-size:.68rem;font-family:inherit;transition:background .15s}
+.sh-nav button:active{transform:scale(.96)}
+.done-btn{width:100%;margin-top:10px;padding:9px;border-radius:9px;border:none;font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit;color:#fff;transition:opacity .2s}
+.done-btn.learned{opacity:.5}
+
+/* Search Overlay */
+.search-ol{position:fixed;inset:0;z-index:200;background:var(--bg);padding:10px;transform:translateY(-100%);transition:transform .3s;display:flex;flex-direction:column}
+.search-ol.show{transform:translateY(0)}
+.search-top{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.search-top input{flex:1;padding:10px 14px;border-radius:12px;border:1px solid var(--brd);background:var(--sf);color:var(--tx);font-size:.85rem;font-family:inherit;outline:none}
+.search-top button{padding:10px;border-radius:12px;border:none;background:var(--sf);color:var(--tx);cursor:pointer;font-size:.85rem}
+.search-results{flex:1;overflow-y:auto}
+.sr-item{padding:10px 12px;border-radius:10px;margin-bottom:6px;background:var(--sf);cursor:pointer;transition:background .15s}
+.sr-item:active{background:var(--sf2)}
+.sr-item h4{font-size:.78rem;font-weight:600}.sr-item p{font-size:.65rem;color:var(--dm);margin-top:2px}
+
+/* Quiz Overlay */
+.quiz-ol{position:fixed;inset:0;z-index:200;background:var(--bg);padding:16px;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s}
+.quiz-ol.show{transform:translateY(0)}
+.quiz-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.quiz-hd h3{font-size:1rem;font-weight:700}
+.quiz-score{font-size:.75rem;color:var(--dm)}
+.quiz-q{font-size:.88rem;line-height:1.6;margin-bottom:14px;font-weight:500}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;flex:1}
+.quiz-opt{padding:12px 14px;border-radius:12px;border:2px solid var(--sf2);background:var(--sf);cursor:pointer;font-size:.8rem;text-align:left;font-family:inherit;color:var(--tx);transition:border-color .2s,background .2s}
+.quiz-opt:active{transform:scale(.98)}
+.quiz-opt.correct{border-color:#5aad3e;background:#5aad3e22}
+.quiz-opt.wrong{border-color:#cc7e4e;background:#cc7e4e22}
+.quiz-opt.reveal{border-color:#5aad3e;opacity:.6}
+.quiz-explain{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--sf);font-size:.76rem;line-height:1.6;display:none}
+.quiz-next{margin-top:auto;padding:12px;border-radius:12px;border:none;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;color:#fff;display:none}
+
+/* Special pages */
+.sp-page{position:fixed;inset:0;z-index:200;background:var(--bg);padding:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s}
+.sp-page.show{transform:translateX(0)}
+.sp-hd{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg2);border-bottom:1px solid var(--brd)}
+.sp-hd h3{font-size:.9rem;font-weight:700;flex:1}
+.sp-search{padding:8px 14px}
+.sp-search input{width:100%;padding:8px 12px;border-radius:10px;border:1px solid var(--brd);background:var(--sf);color:var(--tx);font-size:.8rem;font-family:inherit;outline:none}
+.sp-body{flex:1;overflow-y:auto;padding:8px 14px}
+.iv-row{display:grid;grid-template-columns:1fr 1fr 1fr 1.2fr;gap:4px;padding:8px 10px;border-radius:8px;font-size:.72rem;margin-bottom:3px;background:var(--sf)}
+.iv-row.hdr{font-weight:700;background:var(--sf2);position:sticky;top:0}
+.cw-card{background:var(--sf);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.cw-card h4{font-size:.82rem;font-weight:600;margin-bottom:4px}
+.cw-card p{font-size:.74rem;line-height:1.6;color:var(--dm)}
+.cw-card .cw-ex{margin-top:6px;font-size:.74rem;line-height:1.6;color:var(--tx)}
+
+/* Layout toggle */
+.layout-ind{font-size:.55rem;color:var(--dm);text-align:center;padding:2px}
+
+@media(max-width:500px){
+  .nc{width:76px;height:76px;font-size:.6rem}.nc .sub{font-size:.44rem}
+  .nb{min-width:64px;max-width:98px;padding:6px 8px;font-size:.52rem}.nb .nth{font-size:.44rem}
+  .nl{min-width:60px;max-width:92px;padding:5px 7px;font-size:.48rem}.nl .nth{font-size:.4rem}
+}
+</style>
+</head>
+<body>
+<div class="topbar" id="tb"></div>
+<div class="pbar"><div class="fill" id="pf" style="width:0%;background:var(--t3)"></div></div>
+<div class="mm-area" id="ma"><div class="mm-c" id="mc"></div></div>
+<div class="layout-ind" id="li"></div>
+<div class="tnav" id="tn"></div>
+<div class="obg" id="ob" onclick="csht()"></div>
+<div class="sht" id="sh"><div class="sh-bar"></div><div id="si"></div></div>
+<div class="search-ol" id="sol"></div>
+<div class="quiz-ol" id="qol"></div>
+<div class="sp-page" id="spIV"></div>
+<div class="sp-page" id="spCW"></div>
+
+<script>
+// ═══════ COLORS ═══════
+const CR=['','#2fb8a0','#dea02c','#5aad3e','#cc7e4e','#8db860','#bfa058'];
+const CL=['','#7dddc8','#f0cc6a','#8fd07a','#e8a87a','#b5d48e','#dbc48a'];
+
+// ═══════ GRAMMAR DATA (same as v3 — abbreviated keys for size) ═══════
+const D=[
+{id:1,en:"Parts of Speech",th:"ชนิดและหน้าที่ของคำ",branches:[
+{en:"Nouns",th:"คำนาม",items:[
+{en:"Noun คืออะไร?",th:"ความหมายของคำนาม",desc:"<b>Noun</b> คือ คำที่ใช้เรียกชื่อ <b>คน สัตว์ สิ่งของ สถานที่ หรือความคิด</b> ทุกประโยคต้องมี Noun อย่างน้อย 1 ตัว",ex:"🐶 <hi>dog</hi> (สุนัข)\n🏫 <hi>school</hi> (โรงเรียน)\n💡 <hi>idea</hi> (ความคิด)\n👩 <hi>teacher</hi> (ครู)"},
+{en:"Common Noun",th:"คำนามทั่วไป",desc:"คำนามที่ใช้เรียกสิ่งของทั่วไป <b>ไม่เจาะจง</b> ขึ้นต้นตัวเล็ก ใช้ a/an นำหน้าได้",ex:"I saw a <hi>cat</hi>. <span class='trn'>(ฉันเห็นแมว)</span>\nThe <hi>city</hi> is big. <span class='trn'>(เมืองใหญ่)</span>",mis:"❌ I like Dog.\n✅ I like <hi>dogs</hi>."},
+{en:"Proper Noun",th:"คำนามเฉพาะ",desc:"ชื่อเฉพาะ ขึ้นต้น<b>ตัวพิมพ์ใหญ่เสมอ</b> ไม่ใช้ a/an",ex:"<hi>Bangkok</hi> is beautiful.\nI work at <hi>Google</hi>.\nSee you on <hi>Monday</hi>.",mis:"❌ i live in bangkok.\n✅ <hi>I</hi> live in <hi>Bangkok</hi>."},
+{en:"Countable",th:"นามนับได้",desc:"นับจำนวนได้ มีเอกพจน์/พหูพจน์ ใช้ a/an, many, few",formula:"เอกพจน์: a book\nพหูพจน์: books\nพิเศษ: child→children, man→men",ex:"I have <hi>a book</hi>.\nShe bought three <hi>apples</hi>.",mis:"❌ I have many book.\n✅ I have many <hi>books</hi>."},
+{en:"Uncountable",th:"นามนับไม่ได้",desc:"นับจำนวนไม่ได้ ห้ามใช้ a/an ห้ามเติม -s ใช้ much, some, a lot of\n\nเช่น water, money, information, advice, news, furniture",ex:"I need some <hi>water</hi>.\nShe gave me good <hi>advice</hi>.",tips:"information ไม่ใช่ informations\nnews ใช้ a piece of news",mis:"❌ I need an advice.\n✅ I need <hi>some advice</hi>."},
+{en:"Collective",th:"นามรวมหมู่",desc:"เรียกกลุ่มของคน/สัตว์/สิ่งของ ถือเป็นเอกพจน์เมื่อพูดถึงทั้งกลุ่ม",ex:"A <hi>team</hi> is practicing.\nA <hi>flock</hi> of birds flew.\nMy <hi>family</hi> is big."},
+{en:"Abstract",th:"นามธรรม",desc:"สิ่งที่จับต้องไม่ได้ เช่น ความรู้สึก แนวคิด ส่วนใหญ่ Uncountable",ex:"<hi>Love</hi> is blind.\n<hi>Happiness</hi> comes from within.",tips:"สร้างจาก: kind→kind<b>ness</b>, free→free<b>dom</b>"},
+]},
+{en:"Pronouns",th:"สรรพนาม",items:[
+{en:"Subject Pronouns",th:"สรรพนามประธาน",desc:"ใช้เป็นประธาน: <b>I, you, he, she, it, we, they</b>",ex:"<hi>She</hi> likes coffee.\n<hi>They</hi> are coming.",mis:"❌ Me am happy.\n✅ <hi>I</hi> am happy."},
+{en:"Object Pronouns",th:"สรรพนามกรรม",desc:"ใช้เป็นกรรมหรือหลัง preposition: <b>me, you, him, her, it, us, them</b>",ex:"She loves <hi>me</hi>.\nGive it to <hi>them</hi>.",mis:"❌ She loves I.\n✅ She loves <hi>me</hi>."},
+{en:"Possessive",th:"แสดงเจ้าของ",desc:"Adj: my, your, his, her, its, our, their\nPronoun: mine, yours, his, hers, ours, theirs",ex:"This is <hi>my</hi> book.\nThat is <hi>mine</hi>.",mis:"❌ This is mines.\n✅ This is <hi>mine</hi>."},
+{en:"Reflexive",th:"สะท้อนกลับ",desc:"ประธาน=กรรม: myself, yourself, himself, herself, ourselves, themselves",ex:"I taught <hi>myself</hi> English.\nShe hurt <hi>herself</hi>."},
+{en:"Relative",th:"เชื่อมประโยค",desc:"who (คน), which (สิ่งของ), that (ทั้ง 2), whose (ของใคร)",ex:"The girl <hi>who</hi> sings is my sister.\nThe book <hi>which</hi> I bought is great."},
+]},
+{en:"Verbs",th:"กริยา",items:[
+{en:"Action Verbs",th:"กริยาแสดงการกระทำ",desc:"แสดงการกระทำทางกาย (run, eat) หรือทางจิต (think, believe)",ex:"She <hi>plays</hi> guitar.\nI <hi>believe</hi> you."},
+{en:"Linking Verbs",th:"กริยาเชื่อม",desc:"เชื่อมประธานกับคำอธิบาย ไม่ใช่การกระทำ: be, seem, become, feel, look, smell",formula:"S + Linking V + complement",ex:"She <hi>is</hi> a doctor.\nThe food <hi>smells</hi> good.",tips:"ทดสอบ: เปลี่ยนเป็น is/am/are ถ้าได้ = Linking Verb"},
+{en:"Auxiliary",th:"กริยาช่วย (be, have, do)",desc:"be → Continuous, have → Perfect, do → คำถาม/ปฏิเสธ",ex:"She <hi>is</hi> reading.\nI <hi>have</hi> finished.\n<hi>Do</hi> you agree?"},
+{en:"Modals",th:"กริยาช่วยแสดงนัย",desc:"can, could, may, might, should, must, will, would\nตามด้วย <b>V1 เสมอ ไม่เติม s</b>",ex:"You <hi>should</hi> study.\nShe <hi>can</hi> swim.",mis:"❌ She can swims.\n✅ She can <hi>swim</hi>."},
+]},
+{en:"Adjectives",th:"คุณศัพท์",items:[
+{en:"Descriptive",th:"บอกลักษณะ",desc:"ขยายนาม วางหน้านาม หรือหลัง linking verb",ex:"a <hi>red</hi> car\nThe movie is <hi>interesting</hi>.",tips:"Adj ไม่มีพหูพจน์: ❌ beautifuls ✅ beautiful"},
+{en:"Comparative",th:"ขั้นกว่า",desc:"เปรียบเทียบ 2 สิ่ง: คำสั้น +er / คำยาว more + adj ตามด้วย than",formula:"tall → taller than\nbeautiful → more beautiful than\ngood → better than",ex:"Tom is <hi>taller than</hi> Jerry.\nThis is <hi>more interesting than</hi> that."},
+{en:"Superlative",th:"ขั้นสุด",desc:"เหนือกว่าทั้งหมด: คำสั้น the + est / คำยาว the most + adj",formula:"tall → the tallest\nbeautiful → the most beautiful\ngood → the best",ex:"She is <hi>the tallest</hi> in class.\nHe is <hi>the best</hi> player."},
+]},
+{en:"Adverbs",th:"กริยาวิเศษณ์",items:[
+{en:"Types",th:"ชนิด",desc:"Manner (how), Place (where), Time (when), Frequency (how often), Degree (how much)\nส่วนใหญ่สร้างจาก adj + ly",ex:"She sings <hi>beautifully</hi>.\nHe is <hi>very</hi> tall.\nI <hi>always</hi> eat breakfast.",tips:"ไม่ใช่ทุก -ly = adverb: friendly, lovely = adj\nบาง adverb ไม่มี -ly: fast, hard, well"},
+{en:"Frequency",th:"บอกความถี่",desc:"always 100%, usually 80%, often 60%, sometimes 40%, rarely 10%, never 0%\nวางหลัง be / หน้า V ทั่วไป",ex:"She <hi>always</hi> smiles.\nI <hi>never</hi> drink.\nHe is <hi>usually</hi> on time."},
+]},
+{en:"Prepositions",th:"บุพบท",items:[
+{en:"Time: in/on/at",th:"บุพบทเวลา",desc:"at = เจาะจง (at 5 PM)\non = วัน (on Monday)\nin = เดือน/ปี (in May)\nจำ: at เล็ก → on กลาง → in ใหญ่",ex:"<hi>at</hi> 6 AM, <hi>on</hi> March 5th, <hi>in</hi> summer",mis:"❌ born in Monday\n✅ born <hi>on</hi> Monday"},
+{en:"Place: in/on/at",th:"บุพบทสถานที่",desc:"at = จุด (at the door)\non = ระนาบ (on the wall)\nin = พื้นที่ปิด (in the room)\nจำ: at จุด → on ผิว → in กล่อง",ex:"<hi>at</hi> the door, <hi>on</hi> the wall, <hi>in</hi> Bangkok"},
+]},
+{en:"Conjunctions",th:"สันธาน",items:[
+{en:"FANBOYS",th:"Coordinating",desc:"เชื่อม 2 สิ่งเท่าเทียม: For, And, Nor, But, Or, Yet, So\nใส่ comma ก่อน FANBOYS เมื่อเชื่อม 2 ประโยค",ex:"I like tea<hi>, but</hi> she likes coffee.\nI was hungry<hi>, so</hi> I ate."},
+{en:"Subordinating",th:"เชื่อมอนุประโยค",desc:"because, although, when, if, since, while, after, before, until, unless",ex:"I stayed home <hi>because</hi> it rained.\n<hi>Although</hi> she's young, she's smart."},
+]},
+{en:"Interjections",th:"คำอุทาน",items:[
+{en:"Interjections",th:"คำอุทาน",desc:"คำแสดงอารมณ์ฉับพลัน มักตามด้วย !",ex:"<hi>Wow!</hi> Amazing!\n<hi>Oops!</hi> I dropped it.\n<hi>Ouch!</hi> That hurts!"},
+]},
+]},
+{id:2,en:"Tenses & Aspects",th:"กาลเวลาและลักษณะกริยา",branches:[
+{en:"Present",th:"ปัจจุบันกาล",items:[
+{en:"Present Simple",th:"ปัจจุบันธรรมดา",desc:"ข้อเท็จจริง นิสัย กิจวัตร — he/she/it เติม s/es",formula:"✅ S + V1 (s/es)\n❌ S + don't/doesn't + V1\n❓ Do/Does + S + V1?",ex:"She <hi>works</hi> every day.\nI <hi>don't like</hi> spicy food.\n<hi>Does</hi> he <hi>speak</hi> English?",signal:"always, usually, every day, on Mondays",mis:"❌ She work.\n✅ She <hi>works</hi>."},
+{en:"Present Continuous",th:"ปัจจุบันต่อเนื่อง",desc:"กำลังเกิดตอนนี้ หรือแผนอนาคตใกล้",formula:"S + am/is/are + V-ing",ex:"I <hi>am studying</hi> now.\nWe <hi>are meeting</hi> tomorrow.",signal:"now, right now, at the moment, Look! Listen!",tips:"Stative verbs ห้ามใช้: ❌ I am knowing ✅ I know"},
+{en:"Present Perfect",th:"ปัจจุบันสมบูรณ์",desc:"เกิดอดีต เชื่อมโยงปัจจุบัน — ประสบการณ์/ผลลัพธ์\nไม่ใช้กับเวลาชัดเจน",formula:"S + have/has + V3",ex:"I <hi>have visited</hi> Japan. <span class='trn'>(เคยไป)</span>\nShe <hi>has lost</hi> her keys. <span class='trn'>(ตอนนี้ยังไม่มี)</span>",signal:"ever, never, already, yet, just, since, for",mis:"❌ I have visited Japan last year.\n✅ I <hi>visited</hi> Japan last year."},
+{en:"Present Perfect Cont.",th:"ปัจจุบันสมบูรณ์ต่อเนื่อง",desc:"เริ่มอดีต ดำเนินต่อ เน้นระยะเวลา",formula:"S + have/has + been + V-ing",ex:"I <hi>have been waiting</hi> for 2 hours.\nIt <hi>has been raining</hi> since morning.",signal:"for, since, all day, how long"},
+]},
+{en:"Past",th:"อดีตกาล",items:[
+{en:"Past Simple",th:"อดีตธรรมดา",desc:"เกิดขึ้นจบไปแล้ว กริยาเป็น V2",formula:"✅ S + V2\n❌ S + didn't + V1\n❓ Did + S + V1?",ex:"She <hi>went</hi> yesterday.\nI <hi>didn't eat</hi> breakfast.\n<hi>Did</hi> you <hi>see</hi> it?",signal:"yesterday, last week, ago, in 2020",mis:"❌ I didn't went.\n✅ I didn't <hi>go</hi>."},
+{en:"Past Continuous",th:"อดีตต่อเนื่อง",desc:"กำลังเกิดในอดีต มักใช้คู่ Past Simple",formula:"S + was/were + V-ing",ex:"I <hi>was reading</hi> when she <hi>called</hi>.\nWhile I <hi>was sleeping</hi>, the phone <hi>rang</hi>.",signal:"while, when, at that time"},
+{en:"Past Perfect",th:"อดีตสมบูรณ์",desc:"เกิดก่อนเหตุการณ์อื่นในอดีต (อดีตของอดีต)",formula:"S + had + V3",ex:"She <hi>had left</hi> before I <hi>arrived</hi>.\nI <hi>had eaten</hi> when he <hi>called</hi>.",signal:"before, after, by the time, already"},
+{en:"Past Perfect Cont.",th:"อดีตสมบูรณ์ต่อเนื่อง",desc:"ดำเนินต่อก่อนเหตุการณ์อื่นในอดีต",formula:"S + had + been + V-ing",ex:"They <hi>had been playing</hi> for an hour when it rained.",signal:"for, since, before"},
+]},
+{en:"Future",th:"อนาคตกาล",items:[
+{en:"Future Simple",th:"อนาคตธรรมดา",desc:"ตัดสินใจทันที คาดการณ์ สัญญา",formula:"S + will + V1\nย่อ: I'll, won't",ex:"I<hi>'ll help</hi> you.\nIt <hi>will rain</hi> tomorrow.",signal:"tomorrow, next week, I think, probably"},
+{en:"Be Going To",th:"แผน/หลักฐาน",desc:"แผนล่วงหน้า หรือหลักฐานบ่งชี้",formula:"S + am/is/are + going to + V1",ex:"She <hi>is going to travel</hi> next month.\nLook! It <hi>is going to rain</hi>.",tips:"will = ตัดสินใจตอนนี้\ngoing to = วางแผนไว้แล้ว"},
+{en:"Future Continuous",th:"อนาคตต่อเนื่อง",desc:"จะกำลังเกิดในเวลาหนึ่งในอนาคต",formula:"S + will + be + V-ing",ex:"I <hi>will be working</hi> at 8 PM.",signal:"at this time tomorrow"},
+{en:"Future Perfect",th:"อนาคตสมบูรณ์",desc:"จะเสร็จก่อนเวลาหนึ่งในอนาคต",formula:"S + will + have + V3",ex:"By Friday, I <hi>will have finished</hi>.",signal:"by + time"},
+]},
+]},
+{id:3,en:"Sentence Structures",th:"โครงสร้างประโยค",branches:[
+{en:"Sentence Types",th:"ประเภทประโยค",items:[
+{en:"Simple",th:"ความเดียว",desc:"1 ประธาน + 1 กริยา (Independent Clause เดียว)",formula:"S + V + (O)",ex:"She <hi>sings</hi>.\nThe cat <hi>sat</hi> on the mat."},
+{en:"Compound",th:"ความรวม",desc:"2 Independent Clauses เชื่อมด้วย FANBOYS หรือ ;",formula:"Clause + , + FANBOYS + Clause",ex:"I like tea<hi>, but</hi> she likes coffee.",tips:"อย่าลืม comma ก่อน FANBOYS!"},
+{en:"Complex",th:"ความซ้อน",desc:"1 Independent + 1 Dependent Clause\nDep. อยู่หน้า → ใส่ comma",ex:"<hi>Because</hi> it rained, I stayed home.\nI stayed home <hi>because</hi> it rained."},
+{en:"Compound-Complex",th:"ความรวม-ซ้อน",desc:"2+ Independent + 1+ Dependent Clauses",ex:"<hi>When</hi> I got home, I ate <hi>and</hi> watched TV."},
+]},
+{en:"Clauses",th:"อนุประโยค",items:[
+{en:"Independent",th:"อนุประโยคหลัก",desc:"มีความหมายสมบูรณ์ ยืนอยู่คนเดียวได้",ex:"<hi>She studies hard.</hi>"},
+{en:"Dependent",th:"อนุประโยคย่อย",desc:"ไม่สมบูรณ์ ต้องพึ่งอนุประโยคหลัก",ex:"<hi>Because she studies hard</hi>, she gets good grades."},
+{en:"Noun Clause",th:"นามานุประโยค",desc:"ทำหน้าที่เป็นนาม ขึ้นต้นด้วย that, what, how, where",ex:"I know <hi>that she is coming</hi>.\n<hi>What he said</hi> was true."},
+{en:"Adjective Clause",th:"คุณานุประโยค",desc:"ขยายนาม ขึ้นต้นด้วย who, which, that",ex:"The girl <hi>who won</hi> is my friend."},
+{en:"Adverb Clause",th:"วิเศษณานุประโยค",desc:"ขยายกริยา บอกเวลา/เหตุผล/เงื่อนไข",ex:"<hi>When</hi> she arrived, everyone clapped.\nI stayed <hi>because</hi> I was sick."},
+]},
+{en:"Phrases",th:"วลี",items:[
+{en:"Noun Phrase",th:"นามวลี",desc:"นามเป็นหัวหลัก + คำขยาย",ex:"<hi>The big red ball</hi> rolled away."},
+{en:"Prepositional Phrase",th:"บุพบทวลี",desc:"Preposition + noun phrase",ex:"The book <hi>on the table</hi> is mine."},
+]},
+]},
+{id:4,en:"Verb Forms & Voices",th:"รูปแบบกริยา",branches:[
+{en:"Active & Passive",th:"กรรตุ/กรรมวาจก",items:[
+{en:"Active Voice",th:"กรรตุวาจก",desc:"ประธานเป็นผู้กระทำ — ใช้เป็นหลัก",formula:"S (ผู้ทำ) + V + O",ex:"The chef <hi>cooked</hi> the meal."},
+{en:"Passive Voice",th:"กรรมวาจก",desc:"ประธานเป็นผู้ถูกกระทำ — ใช้เมื่อไม่รู้/ไม่สำคัญว่าใครทำ",formula:"S (ผู้ถูกทำ) + be + V3 + (by agent)",ex:"The meal <hi>was cooked</hi> by the chef.\nEnglish <hi>is spoken</hi> worldwide.",tips:"Active → Passive:\n1. กรรม → ประธาน\n2. V → be + V3\n3. ประธานเดิม → by..."},
+]},
+{en:"Infinitives & Gerunds",th:"Infinitive/Gerund",items:[
+{en:"Infinitive",th:"to + V1",desc:"ตามหลัง: want, need, decide, hope, plan, promise, learn",ex:"I want <hi>to learn</hi>.\nShe decided <hi>to quit</hi>."},
+{en:"Gerund",th:"V-ing เป็นนาม",desc:"ตามหลัง: enjoy, avoid, finish, mind, suggest, keep, practice\nหลัง preposition ใช้ gerund เสมอ",ex:"<hi>Swimming</hi> is fun.\nI enjoy <hi>reading</hi>.",mis:"❌ interested in to learn\n✅ interested in <hi>learning</hi>"},
+{en:"Gerund vs Infinitive",th:"เปลี่ยนความหมาย",desc:"stop V-ing = เลิก / stop to V = หยุดเพื่อ\nremember V-ing = จำว่าเคยทำ / remember to V = จำว่าต้องทำ",ex:"I stopped <hi>smoking</hi>. <span class='trn'>(เลิกสูบ)</span>\nI stopped <hi>to smoke</hi>. <span class='trn'>(หยุดเพื่อไปสูบ)</span>"},
+]},
+{en:"Participles",th:"Participle",items:[
+{en:"-ing Adjective",th:"ตัวกระทำ",desc:"-ing = สิ่งที่ทำให้รู้สึก (boring = น่าเบื่อ)",ex:"The movie is <hi>boring</hi>.\nShe is <hi>interesting</hi>.",tips:"-ing = ตัวทำให้รู้สึก\n-ed = ตัวที่รู้สึก"},
+{en:"-ed Adjective",th:"ตัวรับ",desc:"-ed = คนที่รู้สึก (bored = เบื่อ)",ex:"I am <hi>bored</hi>.\nShe is <hi>tired</hi>.",mis:"❌ I am boring (=ฉันน่าเบื่อ)\n✅ I am <hi>bored</hi> (=ฉันเบื่อ)"},
+]},
+{en:"Subjunctive",th:"อารมณ์สมมติ",items:[
+{en:"Subjunctive",th:"รูปสมมติ",desc:"wish + V2, suggest that + S + V1 (base), If I were...",formula:"I wish I were taller.\nI suggest he study harder.\nIf I were you, I'd go.",ex:"I wish I <hi>were</hi> rich.\nI suggest he <hi>study</hi> harder."},
+]},
+]},
+{id:5,en:"Special Rules",th:"กฎพิเศษ",branches:[
+{en:"S-V Agreement",th:"ความสอดคล้อง S-V",items:[
+{en:"Basic Rules",th:"กฎพื้นฐาน",desc:"ประธานเอกพจน์ → V เติม s\nประธานพหูพจน์ → V ไม่เติม s",ex:"The dog <hi>runs</hi>. (เอกพจน์)\nThe dogs <hi>run</hi>. (พหูพจน์)"},
+{en:"Tricky Cases",th:"กรณีพิเศษ",desc:"either/or → ดูประธานใกล้กริยา\neach, every, everyone → เอกพจน์\nnews, math → เอกพจน์",ex:"Everyone <hi>is</hi> happy.\nThe news <hi>is</hi> good."},
+]},
+{en:"Conditionals",th:"ประโยคเงื่อนไข",items:[
+{en:"Zero",th:"ข้อเท็จจริง",desc:"จริงเสมอ ทั้ง 2 ส่วนใช้ V1",formula:"If + V1, V1",ex:"If you heat water, it boils."},
+{en:"First",th:"เป็นไปได้จริง",desc:"เป็นไปได้ในอนาคต",formula:"If + V1, will + V1",ex:"If it rains, I will stay home.",mis:"❌ If it will rain\n✅ If it <hi>rains</hi>"},
+{en:"Second",th:"สมมติปัจจุบัน",desc:"ไม่จริง/ไม่น่าจะเกิดในปัจจุบัน ใช้ were ทุกบุรุษ",formula:"If + V2, would + V1",ex:"If I <hi>were</hi> rich, I <hi>would travel</hi>."},
+{en:"Third",th:"สมมติอดีต",desc:"สมมติอดีตที่ไม่ได้เกิด เปลี่ยนไม่ได้แล้ว",formula:"If + had V3, would have V3",ex:"If I <hi>had studied</hi>, I <hi>would have passed</hi>.",tips:"0: V1/V1  1: V1/will V1\n2: V2/would V1  3: had V3/would have V3"},
+]},
+{en:"Reported Speech",th:"คำพูดทางอ้อม",items:[
+{en:"Statements",th:"บอกเล่า",desc:"เปลี่ยน tense ถอยหลัง 1 ช่วง เปลี่ยน pronoun",ex:"\"I like pizza.\" → He said he <hi>liked</hi> pizza.",tips:"เปลี่ยน: I→he/she, my→his/her, now→then, today→that day"},
+{en:"Questions",th:"คำถาม",desc:"Yes/No → if/whether  Wh → wh-word + ประโยคบอกเล่า ไม่ใส่ ?",ex:"\"Are you happy?\" → She asked if I <hi>was</hi> happy.",mis:"❌ He asked where did I live.\n✅ He asked where I <hi>lived</hi>."},
+{en:"Commands",th:"คำสั่ง",desc:"told/asked + someone + to + V1",ex:"\"Close the door.\" → She told me <hi>to close</hi> the door."},
+]},
+{en:"Articles",th:"คำนำหน้านาม",items:[
+{en:"a / an",th:"ไม่เจาะจง",desc:"a ก่อนเสียงพยัญชนะ, an ก่อนเสียงสระ\nใช้กับนามนับได้เอกพจน์ที่ไม่เจาะจง",ex:"<hi>a</hi> cat, <hi>an</hi> apple, <hi>an</hi> hour, <hi>a</hi> university",mis:"❌ a honest → ✅ <hi>an</hi> honest\n❌ an university → ✅ <hi>a</hi> university"},
+{en:"the",th:"เจาะจง",desc:"ทั้ง 2 ฝ่ายรู้ว่าหมายถึงอะไร / มีหนึ่งเดียว / กล่าวถึงครั้งที่ 2",ex:"<hi>The</hi> sun rises.\nShe is <hi>the</hi> best."},
+{en:"Zero Article",th:"ไม่ใช้",desc:"Uncountable/พหูพจน์ทั่วไป, ชื่อคน/ประเทศ, มื้ออาหาร, กีฬา, ภาษา",ex:"Dogs are loyal.\nI have breakfast at 7."},
+]},
+{en:"Relative Clauses",th:"อนุประโยคคุณศัพท์",items:[
+{en:"Defining",th:"ที่จำเป็น",desc:"จำเป็น ไม่ใช้ comma ใช้ who/which/that ได้",ex:"The man <hi>who called</hi> is my uncle."},
+{en:"Non-Defining",th:"เสริมข้อมูล",desc:"ไม่จำเป็น ใช้ comma ห้ามใช้ that",ex:"My sister<hi>, who lives in London,</hi> is visiting.",mis:"❌ My sister, that lives...\n✅ My sister, <hi>who</hi> lives..."},
+]},
+]},
+{id:6,en:"Punctuation",th:"เครื่องหมายวรรคตอน",branches:[
+{en:"End Marks",th:"จบประโยค",items:[
+{en:"Period (.)",th:"มหัพภาค",desc:"จบประโยคบอกเล่าและคำสั่ง",ex:"She is a teacher<hi>.</hi>"},
+{en:"Question (?)",th:"ปรัศนี",desc:"จบคำถาม ไม่ใช้กับ indirect question",ex:"Where are you<hi>?</hi>",mis:"❌ I wonder where he is?\n✅ I wonder where he is<hi>.</hi>"},
+{en:"Exclamation (!)",th:"อัศเจรีย์",desc:"แสดงอารมณ์รุนแรง คำอุทาน",ex:"What a day<hi>!</hi> Wow<hi>!</hi>"},
+]},
+{en:"Comma",th:"จุลภาค (,)",items:[
+{en:"Comma Rules",th:"กฎสำคัญ",desc:"1. คั่นรายการ 3+\n2. ก่อน FANBOYS เชื่อม 2 ประโยค\n3. หลัง introductory phrase\n4. คั่น non-defining clause",ex:"apples<hi>,</hi> oranges<hi>,</hi> and grapes\nI like tea<hi>,</hi> but she likes coffee."},
+{en:"Oxford Comma",th:"จุลภาคอ็อกซ์ฟอร์ด",desc:"Comma ก่อน and ในรายการ 3+ อย่าง — แนะนำใช้เพื่อลดกำกวม",ex:"Red<hi>,</hi> white<hi>,</hi> and blue."},
+]},
+{en:"Semicolon & Colon",th:"อัฒภาค/ทวิภาค",items:[
+{en:"Semicolon (;)",th:"อัฒภาค",desc:"เชื่อม 2 ประโยคเกี่ยวข้องกัน ไม่ใช้ conjunction",ex:"She reads<hi>;</hi> he plays sports."},
+{en:"Colon (:)",th:"ทวิภาค",desc:"นำเสนอรายการ/คำอธิบาย สิ่งก่อน colon ต้องเป็นประโยคสมบูรณ์",ex:"You need<hi>:</hi> pen, paper, focus."},
+]},
+{en:"Apostrophe",th:"อะพอสทรอฟี (')",items:[
+{en:"Possessive",th:"แสดงเจ้าของ",desc:"เอกพจน์: 's (John's)\nพหูพจน์ -s: ' (students')\nพหูพจน์ไม่ -s: 's (children's)",ex:"<hi>John's</hi> car\nThe <hi>students'</hi> homework"},
+{en:"It's vs Its",th:"แยก It's / Its",desc:"It's = It is/It has\nIts = ของมัน (ไม่มี ')\nทดสอบ: เปลี่ยนเป็น it is ถ้าได้ → it's",ex:"<hi>It's</hi> raining. (It is)\nThe cat licked <hi>its</hi> paw. (ของมัน)",mis:"❌ Its a nice day.\n✅ <hi>It's</hi> a nice day."},
+]},
+{en:"Hyphen & Dash",th:"ยัติภังค์/ยัติภาค",items:[
+{en:"Hyphen (-)",th:"ยัติภังค์",desc:"เชื่อมคำประสม compound adj หน้านาม",ex:"a <hi>well-known</hi> actor\na <hi>10-year-old</hi> boy"},
+{en:"Em Dash (—)",th:"ยัติภาคยาว",desc:"แทน comma/colon/วงเล็บ เพิ่มน้ำหนัก",ex:"She replied<hi>—</hi>after three long days."},
+]},
+]},
+];
+
+// ═══════ QUIZ DATA ═══════
+const QUIZZES=[
+{tid:1,q:"คำใดเป็น Proper Noun?",opts:["dog","Bangkok","school","idea"],ans:1,explain:"Bangkok เป็นชื่อเฉพาะ ขึ้นต้นตัวพิมพ์ใหญ่"},
+{tid:1,q:"\"information\" เป็น Countable หรือ Uncountable?",opts:["Countable","Uncountable"],ans:1,explain:"information เป็น uncountable ห้ามเติม s ห้ามใช้ a/an"},
+{tid:1,q:"ช่องว่าง: She taught ___ to cook.",opts:["herself","herselves","sheself","her"],ans:0,explain:"herself เป็น reflexive pronoun ของ she"},
+{tid:1,q:"Modal verb ตามด้วยรูปกริยาแบบไหน?",opts:["V1 (base form)","V2 (past)","V-ing","V3 (past participle)"],ans:0,explain:"หลัง modal ใช้ V1 เสมอ เช่น can swim ไม่ใช่ can swims"},
+{tid:1,q:"ลำดับ adjective ที่ถูกต้อง?",opts:["red big car","big red car","car red big"],ans:1,explain:"Size (big) มาก่อน Color (red) ตามกฎ O-S-A-S-C-O-M-P"},
+{tid:2,q:"ประโยคไหนเป็น Present Perfect?",opts:["She works every day.","She is working now.","She has worked here for 5 years.","She worked yesterday."],ans:2,explain:"have/has + V3 = Present Perfect"},
+{tid:2,q:"Signal word ของ Past Simple คือ?",opts:["now","yesterday","since","for"],ans:1,explain:"yesterday บ่งบอกอดีตที่จบแล้ว → Past Simple"},
+{tid:2,q:"If it rains, I ___ stay home.",opts:["will","would","had","am"],ans:0,explain:"First Conditional: If + V1, will + V1"},
+{tid:2,q:"She ___ for 2 hours. (กำลังรออยู่ตั้งแต่ 2 ชม.ก่อน)",opts:["waits","waited","has been waiting","will wait"],ans:2,explain:"เริ่มอดีต ยังดำเนินอยู่ เน้นระยะเวลา → Present Perfect Continuous"},
+{tid:2,q:"เติม: By Friday, I ___ the project.",opts:["finish","will finish","will have finished","am finishing"],ans:2,explain:"จะเสร็จก่อนเวลาหนึ่ง → Future Perfect: will have + V3"},
+{tid:3,q:"\"I like tea, but she likes coffee.\" เป็นประโยคแบบไหน?",opts:["Simple","Compound","Complex","Compound-Complex"],ans:1,explain:"2 Independent Clauses เชื่อมด้วย but (FANBOYS) = Compound"},
+{tid:3,q:"\"because she studies hard\" เป็นอะไร?",opts:["Independent Clause","Dependent Clause","Phrase"],ans:1,explain:"ขึ้นต้นด้วย because (subordinator) ไม่สมบูรณ์ในตัวเอง = Dependent"},
+{tid:4,q:"Passive Voice ของ \"She wrote a letter\" คือ?",opts:["A letter was wrote by her.","A letter was written by her.","A letter is written by her."],ans:1,explain:"Past → was/were + V3 (write → written)"},
+{tid:4,q:"I enjoy ___. (อ่านหนังสือ)",opts:["to read","reading","read"],ans:1,explain:"enjoy ตามด้วย gerund (V-ing) เสมอ"},
+{tid:4,q:"The movie is ___. I am ___.",opts:["bored / boring","boring / bored","boring / boring"],ans:1,explain:"-ing = ตัวทำให้รู้สึก, -ed = ตัวที่รู้สึก"},
+{tid:5,q:"If I ___ rich, I would travel. (สมมติปัจจุบัน)",opts:["am","was","were","will be"],ans:2,explain:"Second Conditional ใช้ were ทุกบุรุษ"},
+{tid:5,q:"\"She said she liked pizza.\" มาจาก Direct Speech ว่าอะไร?",opts:["\"She likes pizza.\"","\"I like pizza.\"","\"I liked pizza.\""],ans:1,explain:"เปลี่ยน I → she, like → liked (ถอยหลัง 1 ช่วง)"},
+{tid:5,q:"\"___ hour\" ใช้ a หรือ an?",opts:["a hour","an hour"],ans:1,explain:"h ใน hour ไม่ออกเสียง เสียงขึ้นต้นเป็นสระ → an"},
+{tid:6,q:"It's หมายถึงอะไร?",opts:["ของมัน","It is / It has"],ans:1,explain:"It's = It is หรือ It has (ย่อ) / Its = ของมัน ไม่มี apostrophe"},
+{tid:6,q:"เมื่อเชื่อม 2 ประโยคด้วย FANBOYS ต้องใส่อะไรก่อน?",opts:["Semicolon (;)","Comma (,)","Colon (:)","ไม่ต้องใส่อะไร"],ans:1,explain:"ใส่ comma ก่อน FANBOYS เมื่อเชื่อม 2 Independent Clauses"},
+];
+
+// ═══════ IRREGULAR VERBS ═══════
+const IRREG=[
+["be","was/were","been","เป็น/อยู่"],["become","became","become","กลายเป็น"],["begin","began","begun","เริ่ม"],["break","broke","broken","แตก/หัก"],["bring","brought","brought","นำมา"],
+["build","built","built","สร้าง"],["buy","bought","bought","ซื้อ"],["catch","caught","caught","จับ"],["choose","chose","chosen","เลือก"],["come","came","come","มา"],
+["cost","cost","cost","ราคา"],["cut","cut","cut","ตัด"],["do","did","done","ทำ"],["draw","drew","drawn","วาด"],["drink","drank","drunk","ดื่ม"],
+["drive","drove","driven","ขับรถ"],["eat","ate","eaten","กิน"],["fall","fell","fallen","ตก/ล้ม"],["feel","felt","felt","รู้สึก"],["find","found","found","พบ"],
+["fly","flew","flown","บิน"],["forget","forgot","forgotten","ลืม"],["get","got","gotten","ได้"],["give","gave","given","ให้"],["go","went","gone","ไป"],
+["grow","grew","grown","โต/ปลูก"],["have","had","had","มี"],["hear","heard","heard","ได้ยิน"],["hide","hid","hidden","ซ่อน"],["hit","hit","hit","ตี"],
+["hold","held","held","ถือ"],["hurt","hurt","hurt","เจ็บ"],["keep","kept","kept","เก็บ"],["know","knew","known","รู้"],["leave","left","left","ออกไป"],
+["lend","lent","lent","ให้ยืม"],["let","let","let","ปล่อย/ให้"],["lie","lay","lain","นอน"],["lose","lost","lost","สูญเสีย"],["make","made","made","ทำ/สร้าง"],
+["mean","meant","meant","หมายถึง"],["meet","met","met","พบ"],["pay","paid","paid","จ่าย"],["put","put","put","วาง"],["read","read","read","อ่าน"],
+["ride","rode","ridden","ขี่"],["ring","rang","rung","ดัง/โทร"],["run","ran","run","วิ่ง"],["say","said","said","พูด"],["see","saw","seen","เห็น"],
+["sell","sold","sold","ขาย"],["send","sent","sent","ส่ง"],["set","set","set","ตั้ง"],["show","showed","shown","แสดง"],["sing","sang","sung","ร้อง"],
+["sit","sat","sat","นั่ง"],["sleep","slept","slept","นอน"],["speak","spoke","spoken","พูด"],["spend","spent","spent","ใช้จ่าย"],["stand","stood","stood","ยืน"],
+["steal","stole","stolen","ขโมย"],["swim","swam","swum","ว่ายน้ำ"],["take","took","taken","เอา"],["teach","taught","taught","สอน"],["tell","told","told","บอก"],
+["think","thought","thought","คิด"],["throw","threw","thrown","โยน"],["understand","understood","understood","เข้าใจ"],["wake","woke","woken","ตื่น"],
+["wear","wore","worn","สวมใส่"],["win","won","won","ชนะ"],["write","wrote","written","เขียน"],
+];
+
+// ═══════ CONFUSING WORDS ═══════
+const CONFUSE=[
+{pair:"borrow vs lend",desc:"<b>borrow</b> = ยืม (เราเอามาใช้)\n<b>lend</b> = ให้ยืม (เราให้คนอื่นใช้)",ex:"Can I <hi>borrow</hi> your pen? <span class='trn'>(ขอยืมปากกาได้ไหม?)</span>\nCan you <hi>lend</hi> me your pen? <span class='trn'>(ให้ยืมปากกาได้ไหม?)</span>"},
+{pair:"make vs do",desc:"<b>make</b> = สร้าง/ผลิตสิ่งใหม่ (make a cake, make a decision)\n<b>do</b> = ทำกิจกรรม/งาน (do homework, do exercise)",ex:"She <hi>made</hi> a cake. <span class='trn'>(เธอทำเค้ก)</span>\nI <hi>do</hi> my homework. <span class='trn'>(ฉันทำการบ้าน)</span>"},
+{pair:"say vs tell",desc:"<b>say</b> = พูด (ไม่ต้องมีคนฟัง)\n<b>tell</b> = บอก (ต้องมีคนฟังเสมอ: tell someone)",ex:"She <hi>said</hi> \"hello.\" <span class='trn'>(เธอพูดว่า...)</span>\nShe <hi>told</hi> me the truth. <span class='trn'>(เธอบอกฉัน...)</span>"},
+{pair:"much vs many",desc:"<b>much</b> = มาก (นับไม่ได้: much water, much time)\n<b>many</b> = มาก (นับได้: many books, many people)",ex:"How <hi>much</hi> water? <span class='trn'>(น้ำเท่าไหร่?)</span>\nHow <hi>many</hi> students? <span class='trn'>(นักเรียนกี่คน?)</span>"},
+{pair:"since vs for",desc:"<b>since</b> = ตั้งแต่ (จุดเวลา: since Monday, since 2020)\n<b>for</b> = เป็นเวลา (ช่วงเวลา: for 3 hours, for 2 years)",ex:"I've lived here <hi>since</hi> 2020. <span class='trn'>(ตั้งแต่ปี 2020)</span>\nI've lived here <hi>for</hi> 4 years. <span class='trn'>(เป็นเวลา 4 ปี)</span>"},
+{pair:"too vs enough",desc:"<b>too</b> = มากเกินไป (too + adj) — เชิงลบ\n<b>enough</b> = พอ (adj + enough / enough + noun)",ex:"It's <hi>too</hi> hot. <span class='trn'>(ร้อนเกินไป)</span>\nIt's warm <hi>enough</hi>. <span class='trn'>(อุ่นพอ)</span>"},
+{pair:"other vs another",desc:"<b>another</b> = อีก 1 (เอกพจน์: another cup)\n<b>other</b> = อื่นๆ (พหูพจน์: other people)",ex:"Give me <hi>another</hi> chance. <span class='trn'>(โอกาสอีกครั้ง)</span>\n<hi>Other</hi> students left. <span class='trn'>(นักเรียนคนอื่นๆ ไป)</span>"},
+{pair:"used to vs be used to",desc:"<b>used to + V1</b> = เคย (อดีต ไม่ทำแล้ว)\n<b>be used to + V-ing</b> = คุ้นเคย (ปัจจุบัน)",ex:"I <hi>used to</hi> smoke. <span class='trn'>(ฉันเคยสูบบุหรี่ — เลิกแล้ว)</span>\nI <hi>am used to</hi> waking up early. <span class='trn'>(ฉันคุ้นเคยกับการตื่นเช้า)</span>"},
+];
+
+// ═══════ STATE ═══════
+let S={l:0,t:null,b:null};
+let layout='radial'; // radial or horiz
+let theme=localStorage.getItem('gm-theme')||'dark';
+let progress=JSON.parse(localStorage.getItem('gm-prog')||'{}');
+let bookmarks=JSON.parse(localStorage.getItem('gm-bkmk')||'[]');
+document.documentElement.setAttribute('data-theme',theme==='light'?'light':'');
+
+// ═══════ NAV ═══════
+function go(l,t,b){S={l,t:t??null,b:b??null};csht();rAll()}
+function rAll(){rTb();rM();rN();rProg();rLi()}
+function rTb(){
+  const tb=document.getElementById('tb');
+  const t=S.t!=null?D.find(d=>d.id===S.t):null;
+  const b=(t&&S.b!=null)?t.branches[S.b]:null;
+  let bf=S.l===2?`go(1,${S.t})`:S.l===1?'go(0)':'';
+  let cr='<span onclick="go(0)" class="'+(S.l===0?'cur':'')+'">Grammar</span>';
+  if(t) cr+=`<span class="sep">›</span><span onclick="go(1,${t.id})" class="${S.l===1?'cur':''}" style="color:${CR[t.id]}">${t.en}</span>`;
+  if(b) cr+=`<span class="sep">›</span><span class="cur">${b.en}</span>`;
+  tb.innerHTML=`<button class="tb-btn ${S.l===0?'hid':''}" onclick="${bf}">‹</button><div class="cr">${cr}</div>
+  <div class="tb-right"><button class="tb-btn" onclick="oSearch()">🔍</button><button class="tb-btn" onclick="togLayout()">${layout==='radial'?'↔':'⭕'}</button><button class="tb-btn" onclick="togTheme()">${theme==='dark'?'☀':'🌙'}</button></div>`;
+}
+function rN(){
+  const n=document.getElementById('tn');
+  let extra=`<div class="ch ch-special" onclick="oIV()">📋 กริยา 3 ช่อง</div><div class="ch ch-special" onclick="oCW()">🔄 คำสับสน</div><div class="ch ch-special" onclick="oQuiz()">📝 Quiz</div>`;
+  n.innerHTML=D.map(d=>{
+    const on=S.t===d.id;
+    return `<div class="ch${on?' on':''}" style="color:${CR[d.id]};border-color:${CR[d.id]}${on?'':'44'};${on?'background:'+CR[d.id]+'25':''}" onclick="go(1,${d.id})">${d.en.replace(/ & .*/,'')}</div>`;
+  }).join('')+extra;
+}
+function rProg(){
+  let total=0,done=0;
+  D.forEach(t=>t.branches.forEach(b=>b.items.forEach(it=>{total++;if(progress[t.id+'-'+it.en])done++})));
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('pf').style.width=pct+'%';
+}
+function rLi(){document.getElementById('li').textContent=layout==='radial'?'⭕ แนวรัศมี':'↔ แนวนอน'}
+
+// ═══════ THEME ═══════
+function togTheme(){
+  theme=theme==='dark'?'light':'dark';
+  localStorage.setItem('gm-theme',theme);
+  document.documentElement.setAttribute('data-theme',theme==='light'?'light':'');
+  rTb();
+}
+
+// ═══════ LAYOUT ═══════
+function togLayout(){layout=layout==='radial'?'horiz':'radial';rAll()}
+
+// ═══════ MIND MAP ═══════
+function rM(){
+  const c=document.getElementById('mc');
+  c.className='mm-c'+(S.l===2||layout==='horiz'?' wide':'');
+  requestAnimationFrame(()=>{
+    const W=c.offsetWidth,H=c.offsetHeight;if(!W)return;
+    const cx=layout==='horiz'?W*0.15:W/2;
+    const cy=H/2;
+    if(S.l===0)rHub(c,W,H,cx,cy);
+    else if(S.l===1)rTopic(c,W,H,cx,cy);
+    else rBranch(c,W,H,cx,cy);
+  });
+}
+function bz(x1,y1,x2,y2,i){
+  if(layout==='horiz'){
+    const mx=(x1+x2)/2;
+    return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+  }
+  const mx=(x1+x2)/2,my=(y1+y2)/2,a=Math.atan2(y2-y1,x2-x1),pa=a+Math.PI/2;
+  const off=(i%2===0?1:-1)*Math.min(18,Math.hypot(x2-x1,y2-y1)*.1);
+  return `M${x1},${y1} Q${mx+Math.cos(pa)*off},${my+Math.sin(pa)*off} ${x2},${y2}`;
+}
+function calcPos(cx,cy,W,H,n,i){
+  if(layout==='horiz'){
+    const spacing=H/(n+1);
+    return {x:cx+W*0.55,y:spacing*(i+1)};
+  }
+  const r=Math.min(W,H)*(n>6?.4:.37);
+  const a=(-90+i*(360/n))*Math.PI/180;
+  return {x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)};
+}
+function rHub(c,W,H,cx,cy){
+  let s='',n='';
+  n+=`<div class="mm-n nc" style="left:${cx}px;top:${cy}px;background:linear-gradient(135deg,${CR[3]},${CR[1]})">English<br>Grammar<div class="sub">แผนที่ไวยากรณ์</div></div>`;
+  D.forEach((d,i)=>{
+    const p=calcPos(cx,cy,W,H,D.length,i);
+    s+=`<path class="mm-line" style="animation-delay:${i*.06}s" stroke="${CR[d.id]}" d="${bz(cx,cy,p.x,p.y,i)}"/>`;
+    n+=`<div class="mm-n nb" style="left:${p.x}px;top:${p.y}px;background:${CR[d.id]};box-shadow:0 3px 14px ${CR[d.id]}44;animation-delay:${.08+i*.06}s" onclick="go(1,${d.id})">${d.en}<div class="nth">${d.th}</div></div>`;
+  });
+  c.innerHTML=`<svg class="mm-svg" viewBox="0 0 ${W} ${H}">${s}</svg>${n}`;
+}
+function rTopic(c,W,H,cx,cy){
+  const t=D.find(d=>d.id===S.t),nn=t.branches.length;
+  let s='',n='';
+  n+=`<div class="mm-n nc" style="left:${cx}px;top:${cy}px;background:${CR[t.id]};box-shadow:0 0 25px ${CR[t.id]}44">${t.en}<div class="sub">${t.th}</div></div>`;
+  t.branches.forEach((b,i)=>{
+    const p=calcPos(cx,cy,W,H,nn,i);
+    s+=`<path class="mm-line" style="animation-delay:${i*.05}s" stroke="${CR[t.id]}" d="${bz(cx,cy,p.x,p.y,i)}"/>`;
+    n+=`<div class="mm-n nb" style="left:${p.x}px;top:${p.y}px;background:${CR[t.id]}dd;box-shadow:0 3px 12px ${CR[t.id]}33;animation-delay:${.06+i*.05}s" onclick="go(2,${t.id},${i})">${b.en}<div class="nth">${b.th} · ${b.items.length}</div></div>`;
+  });
+  c.innerHTML=`<svg class="mm-svg" viewBox="0 0 ${W} ${H}">${s}</svg>${n}`;
+}
+function rBranch(c,W,H,cx,cy){
+  const t=D.find(d=>d.id===S.t),b=t.branches[S.b],nn=b.items.length;
+  let s='',n='';
+  n+=`<div class="mm-n nc" style="left:${cx}px;top:${cy}px;background:${CR[t.id]};box-shadow:0 0 25px ${CR[t.id]}44">${b.en}<div class="sub">${b.th}</div></div>`;
+  b.items.forEach((it,i)=>{
+    const p=calcPos(cx,cy,W,H,nn,i);
+    const bk=bookmarks.includes(t.id+'-'+it.en)?'⭐':'';
+    const done=progress[t.id+'-'+it.en];
+    s+=`<path class="mm-line" style="animation-delay:${i*.05}s" stroke="${CL[t.id]}" d="${bz(cx,cy,p.x,p.y,i)}"/>`;
+    n+=`<div class="mm-n nl" style="left:${p.x}px;top:${p.y}px;background:${CR[t.id]}${done?'66':'cc'};box-shadow:0 3px 10px ${CR[t.id]}22;animation-delay:${.06+i*.05}s;${done?'opacity:.6':''}" onclick="osht(${t.id},${S.b},${i})">${bk?'<span class="bkmk">'+bk+'</span>':''}${it.en}<div class="nth">${it.th}</div></div>`;
+  });
+  c.innerHTML=`<svg class="mm-svg" viewBox="0 0 ${W} ${H}">${s}</svg>${n}`;
+}
+
+// ═══════ DETAIL SHEET ═══════
+function osht(tid,bi,ii){
+  const t=D.find(d=>d.id===tid),it=t.branches[bi].items[ii],c=CR[tid],cl=CL[tid];
+  const key=tid+'-'+it.en;
+  const isBk=bookmarks.includes(key);
+  const isDone=!!progress[key];
+  let h=`<div class="sh-hd"><div class="sh-hd-left"><h3 style="color:${cl}">${it.en}</h3><div class="sth">${it.th}</div></div><div class="sh-hd-btns"><button onclick="togBk('${key}')" title="Bookmark">${isBk?'⭐':'☆'}</button><button onclick="tts(this)" title="ฟังเสียง">🔊</button></div></div><div class="sh-bd">`;
+  h+=`<div class="s-sec"><div class="s-label" style="color:${cl}"><em class="ico">📖</em> คำอธิบาย</div><div class="s-desc">${it.desc.replace(/\n/g,'<br>')}</div></div>`;
+  if(it.formula) h+=`<div class="s-sec"><div class="s-label" style="color:${cl}"><em class="ico">📐</em> โครงสร้าง</div><div class="s-form" style="border-color:${c}88;color:${cl}">${it.formula.replace(/\n/g,'<br>')}</div></div>`;
+  if(it.signal) h+=`<div class="s-sec"><div class="s-label" style="color:${cl}"><em class="ico">🔑</em> คำบอกสัญญาณ</div><div class="s-sig">${it.signal.split(', ').map(w=>`<span style="background:${c}22;color:${cl}">${w}</span>`).join('')}</div></div>`;
+  if(it.ex) h+=`<div class="s-sec"><div class="s-label" style="color:${cl}"><em class="ico">📝</em> ตัวอย่าง</div><div class="s-ex" style="color:${cl}">${it.ex.replace(/\n/g,'<br>')}</div></div>`;
+  if(it.tips) h+=`<div class="s-sec"><div class="s-label" style="color:#5aad3e"><em class="ico">💡</em> เคล็ดลับ</div><div class="s-tip">${it.tips.replace(/\n/g,'<br>')}</div></div>`;
+  if(it.mis) h+=`<div class="s-sec"><div class="s-label" style="color:#cc7e4e"><em class="ico">⚠️</em> ข้อผิดพลาดที่พบบ่อย</div><div class="s-mis">${it.mis.replace(/\n/g,'<br>')}</div></div>`;
+  // done btn
+  h+=`<button class="done-btn ${isDone?'learned':''}" style="background:${CR[tid]}" onclick="togDone('${key}',${tid},${bi},${ii})">${isDone?'✅ เรียนแล้ว':'เรียนจบหัวข้อนี้'}</button>`;
+  // nav
+  const items=t.branches[bi].items;
+  let nv='<div class="sh-nav">';
+  if(ii>0)nv+=`<button style="color:${cl};border-color:${c}44" onclick="osht(${tid},${bi},${ii-1})">‹ ${items[ii-1].en}</button>`;
+  if(ii<items.length-1)nv+=`<button style="color:${cl};border-color:${c}44" onclick="osht(${tid},${bi},${ii+1})">${items[ii+1].en} ›</button>`;
+  nv+='</div>';
+  h+=nv+'</div>';
+  document.getElementById('si').innerHTML=h;
+  document.getElementById('ob').classList.add('show');
+  document.getElementById('sh').classList.add('show');
+  document.getElementById('sh').scrollTop=0;
+}
+function csht(){document.getElementById('ob').classList.remove('show');document.getElementById('sh').classList.remove('show')}
+
+// ═══════ BOOKMARK ═══════
+function togBk(key){
+  const i=bookmarks.indexOf(key);
+  if(i>-1)bookmarks.splice(i,1);else bookmarks.push(key);
+  localStorage.setItem('gm-bkmk',JSON.stringify(bookmarks));
+  // re-render sheet header star
+  const btn=document.querySelector('.sh-hd-btns button');
+  if(btn)btn.textContent=bookmarks.includes(key)?'⭐':'☆';
+  if(S.l===2)rM();
+}
+
+// ═══════ PROGRESS ═══════
+function togDone(key,tid,bi,ii){
+  if(progress[key])delete progress[key];else progress[key]=1;
+  localStorage.setItem('gm-prog',JSON.stringify(progress));
+  osht(tid,bi,ii);rProg();if(S.l===2)rM();
+}
+
+// ═══════ TTS ═══════
+function tts(btn){
+  const exDiv=document.querySelector('.s-ex');
+  if(!exDiv)return;
+  let text=exDiv.textContent.replace(/[🐶🏫💡👩📱]/g,'').replace(/\(.*?\)/g,'').trim();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=0.85;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+  btn.textContent='🔈';
+  u.onend=()=>btn.textContent='🔊';
+}
+
+// ═══════ SEARCH ═══════
+function oSearch(){
+  const sol=document.getElementById('sol');
+  sol.innerHTML=`<div class="search-top"><input type="text" placeholder="ค้นหา เช่น passive, tense, comma..." oninput="doSearch(this.value)" autofocus><button onclick="cSearch()">✕</button></div><div class="search-results" id="sr"></div>`;
+  sol.classList.add('show');
+  setTimeout(()=>sol.querySelector('input').focus(),100);
+}
+function cSearch(){document.getElementById('sol').classList.remove('show')}
+function doSearch(q){
+  const sr=document.getElementById('sr');if(!q.trim()){sr.innerHTML='';return}
+  q=q.toLowerCase();let results=[];
+  D.forEach(t=>t.branches.forEach((b,bi)=>b.items.forEach((it,ii)=>{
+    const hay=(it.en+' '+it.th+' '+(it.desc||'')+' '+(it.ex||'')+' '+(it.tips||'')).toLowerCase();
+    if(hay.includes(q))results.push({t,bi,ii,it});
+  })));
+  // also search irregular verbs
+  IRREG.forEach(v=>{if((v[0]+v[1]+v[2]+v[3]).toLowerCase().includes(q))results.push({iv:v})});
+  sr.innerHTML=results.slice(0,20).map(r=>{
+    if(r.iv)return `<div class="sr-item" onclick="cSearch();oIV()"><h4>${r.iv[0]} → ${r.iv[1]} → ${r.iv[2]}</h4><p>${r.iv[3]} (กริยา 3 ช่อง)</p></div>`;
+    return `<div class="sr-item" onclick="cSearch();go(2,${r.t.id},${r.bi});setTimeout(()=>osht(${r.t.id},${r.bi},${r.ii}),400)"><h4 style="color:${CL[r.t.id]}">${r.it.en}</h4><p>${r.it.th} — ${r.t.en} › ${r.t.branches[r.bi].en}</p></div>`;
+  }).join('')||(q.length>1?'<p style="padding:20px;color:var(--dm);text-align:center">ไม่พบผลลัพธ์</p>':'');
+}
+
+// ═══════ QUIZ ═══════
+let qState={qs:[],idx:0,score:0,answered:false};
+function oQuiz(tid){
+  const qs=tid?QUIZZES.filter(q=>q.tid===tid):QUIZZES.slice();
+  for(let i=qs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qs[i],qs[j]]=[qs[j],qs[i]]}
+  qState={qs:qs.slice(0,10),idx:0,score:0,answered:false};
+  rQuiz();
+  document.getElementById('qol').classList.add('show');
+}
+function cQuiz(){document.getElementById('qol').classList.remove('show')}
+function rQuiz(){
+  const qol=document.getElementById('qol');
+  const {qs,idx,score}=qState;
+  if(idx>=qs.length){
+    qol.innerHTML=`<div class="quiz-hd"><h3>🎉 จบ Quiz!</h3><button class="tb-btn" onclick="cQuiz()">✕</button></div>
+    <div style="text-align:center;padding:40px 20px"><div style="font-size:2.5rem;font-weight:800;color:var(--t3)">${score}/${qs.length}</div><p style="color:var(--dm);margin-top:8px">คะแนนของคุณ</p>
+    <button style="margin-top:20px;padding:12px 24px;border-radius:12px;border:none;background:var(--t3);color:#fff;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="oQuiz()">เล่นอีกครั้ง</button></div>`;
+    return;
+  }
+  const q=qs[idx];
+  qol.innerHTML=`<div class="quiz-hd"><h3>Quiz</h3><span class="quiz-score">${idx+1}/${qs.length} · คะแนน: ${score}</span><button class="tb-btn" onclick="cQuiz()">✕</button></div>
+  <div class="quiz-q">${q.q}</div>
+  <div class="quiz-opts">${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="ansQuiz(${i})">${o}</button>`).join('')}</div>
+  <div class="quiz-explain" id="qexp">${q.explain}</div>
+  <button class="quiz-next" id="qnxt" style="background:var(--t3)" onclick="nxtQuiz()">ข้อถัดไป →</button>`;
+}
+function ansQuiz(i){
+  if(qState.answered)return;
+  qState.answered=true;
+  const q=qState.qs[qState.idx];
+  const btns=document.querySelectorAll('.quiz-opt');
+  btns.forEach((b,j)=>{
+    if(j===q.ans)b.classList.add('correct');
+    if(j===i&&i!==q.ans)b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  if(i===q.ans)qState.score++;
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnxt').style.display='block';
+}
+function nxtQuiz(){qState.idx++;qState.answered=false;rQuiz()}
+
+// ═══════ IRREGULAR VERBS PAGE ═══════
+function oIV(){
+  const sp=document.getElementById('spIV');
+  sp.innerHTML=`<div class="sp-hd"><button class="tb-btn" onclick="cIV()">‹</button><h3>📋 Irregular Verbs (กริยา 3 ช่อง)</h3></div>
+  <div class="sp-search"><input type="text" placeholder="ค้นหา เช่น go, eat, buy..." oninput="fIV(this.value)"></div>
+  <div class="sp-body"><div class="iv-row hdr"><span>V1</span><span>V2</span><span>V3</span><span>ความหมาย</span></div><div id="ivList">${IRREG.map(v=>`<div class="iv-row"><span>${v[0]}</span><span>${v[1]}</span><span>${v[2]}</span><span>${v[3]}</span></div>`).join('')}</div></div>`;
+  sp.classList.add('show');
+}
+function cIV(){document.getElementById('spIV').classList.remove('show')}
+function fIV(q){
+  q=q.toLowerCase();
+  document.getElementById('ivList').innerHTML=IRREG.filter(v=>(v[0]+v[1]+v[2]+v[3]).toLowerCase().includes(q)).map(v=>`<div class="iv-row"><span>${v[0]}</span><span>${v[1]}</span><span>${v[2]}</span><span>${v[3]}</span></div>`).join('');
+}
+
+// ═══════ CONFUSING WORDS PAGE ═══════
+function oCW(){
+  const sp=document.getElementById('spCW');
+  sp.innerHTML=`<div class="sp-hd"><button class="tb-btn" onclick="cCW()">‹</button><h3>🔄 Confusing Words (คำที่มักสับสน)</h3></div>
+  <div class="sp-body" style="padding-top:12px">${CONFUSE.map(c=>`<div class="cw-card"><h4>${c.pair}</h4><p>${c.desc.replace(/\n/g,'<br>')}</p><div class="cw-ex">${c.ex.replace(/\n/g,'<br>')}</div></div>`).join('')}</div>`;
+  sp.classList.add('show');
+}
+function cCW(){document.getElementById('spCW').classList.remove('show')}
+
+// ═══════ RESIZE ═══════
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(rM,120)});
+rAll();
+</script>
+</body>
+</html>
